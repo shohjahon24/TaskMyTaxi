@@ -4,6 +4,7 @@ import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import android.location.LocationManager
+import android.util.Log
 import androidx.core.location.LocationManagerCompat
 import com.example.taskmytaxi.domain.model.Point
 import java.io.IOException
@@ -19,12 +20,13 @@ fun Context.getAddressFromLatLng(point: Point): String {
     var strAdd = ""
     val geoCoder = Geocoder(this, Locale.getDefault())
     try {
-        val addresses = geoCoder.getFromLocation(point.lat, point.lng, 1)
+        val addresses = geoCoder.getFromLocation(point.lat, point.lng, 10)
         if (addresses != null) {
+            Log.d("TAG", "getAddressFromLatLng: $addresses")
             val returnedAddress = addresses[0]
             val strReturnedAddress = StringBuilder("")
             for (i in 0..returnedAddress.maxAddressLineIndex) {
-                strReturnedAddress.append(returnedAddress.getAddressLine(i))
+                strReturnedAddress.append(returnedAddress.subAdminArea)
             }
             strAdd = strReturnedAddress.toString()
             // Log.w("My Current location address", strReturnedAddress.toString())

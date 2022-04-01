@@ -8,9 +8,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="yellow">#FEDD33</color>
+    <color name="red">#FF453A</color>
+    <color name="blue">#4A7DFF</color>
 
     // text
-    <color name="text_color_light">#B0B0B0</color>
+    <color name="text_color_light">#737373</color>
 
     // background
     <color name="background_color">#EAEBEC</color>

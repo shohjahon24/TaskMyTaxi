@@ -18,15 +18,38 @@
             android:layout_height="match_parent" />
 
         <ImageView
+            android:id="@+id/im_pin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_pin"
+            android:translationY="-30dp" />
+
+        <ImageView
             android:id="@+id/btn_my_location"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="bottom|end"
-            android:background="?selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_button_round"
             android:layout_marginEnd="8dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="6dp"
+            android:paddingStart="6dp"
             android:elevation="2dp"
             android:layout_marginBottom="48dp"
-            android:src="@drawable/ic_my_location" />
+            android:src="@drawable/ic_location" />
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_button_round"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:padding="10dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_back" />
 
     </FrameLayout>
 
@@ -44,13 +67,13 @@
             android:padding="16dp">
 
             <include
-                android:visibility="gone"
                 android:id="@+id/item_location"
                 layout="@layout/item_input_location" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="wrap_content"
@@ -83,9 +106,9 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
                         android:gravity="center_vertical"
                         android:lines="1"
-                        android:text="Qorasaroy"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
 

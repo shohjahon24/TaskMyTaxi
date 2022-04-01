@@ -4,9 +4,20 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Looper
 import androidx.lifecycle.MutableLiveData
+import com.example.taskmytaxi.domain.model.Location
 import com.example.taskmytaxi.domain.model.Point
 import com.google.android.gms.location.*
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.MalformedURLException
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,6 +26,8 @@ import javax.inject.Singleton
 class LocationManager @Inject constructor(@ApplicationContext private val context: Context) {
 
     var lastDeviceLocation: MutableLiveData<Point> = MutableLiveData()
+
+    var selectedLocation: MutableLiveData<Location> = MutableLiveData()
 
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(
@@ -56,5 +69,52 @@ class LocationManager @Inject constructor(@ApplicationContext private val contex
 
     fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    fun getAddress(point: Point) {
+        CoroutineScope(Dispatchers.IO).launch {
+            var connection: HttpURLConnection? = null
+            val location: Location
+            val jsonResult = StringBuilder()
+            try {
+                val sb = StringBuilder("https://nominatim.openstreetmap.org/reverse?format=jsonv2&")
+                sb.append("lat=${point.lat}")
+                sb.append("&lon=${point.lng}")
+                sb.append("&zoom=18&addressdetails=0")
+                val url = URL(sb.toString())
+                connection = url.openConnection() as HttpURLConnection
+                val inputStreamReader = InputStreamReader(connection.inputStream)
+                var read: Int
+                val buff = CharArray(1024)
+                while (inputStreamReader.read(buff).also { read = it } != -1) {
+                    jsonResult.append(buff, 0, read)
+                }
+            } catch (e: MalformedURLException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } finally {
+                connection?.disconnect()
+            }
+            try {
+                val jsonObject = JSONObject(jsonResult.toString())
+                val name = jsonObject.getString("display_name")
+                var address = ""
+                var formattedAddress = ""
+                val list = name.split(",")
+                list.forEachIndexed { index, s ->
+                    when {
+                        index < list.size - 5 -> formattedAddress += "$s,"
+                        index < list.size - 4 -> formattedAddress += s
+                        index == list.size - 1 -> address += s
+                        else -> address += "$s,"
+                    }
+                }
+                location = Location(address, 0, formattedAddress, "", point, 0)
+                selectedLocation.postValue(location)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
     }
 }

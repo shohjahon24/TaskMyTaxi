@@ -1,33 +1,43 @@
 package com.example.taskmytaxi.presentation.ui.map
 
-import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.taskmytaxi.R
+import com.example.taskmytaxi.databinding.FragmentMapBinding
 import com.example.taskmytaxi.domain.model.Point
 import com.example.taskmytaxi.util.location.LocationManager
-import com.google.android.gms.location.LocationListener
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback {
+class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
+    GoogleMap.OnCameraIdleListener {
 
     private var mMap: GoogleMap? = null
 
+    private lateinit var binding: FragmentMapBinding
+
     @Inject
     lateinit var locationManager: LocationManager
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentMapBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
@@ -36,63 +46,43 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         locationManager.getCurrentLocation()
         setupObserves()
+        binding.btnMyLocation.setOnClickListener {
+            locationManager.getCurrentLocation()
+        }
     }
 
     private fun setupObserves() {
         locationManager.lastDeviceLocation.observe(viewLifecycleOwner) {
-            setMarker(it)
+            setCamera(it)
         }
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        mMap?.run {
-            isTrafficEnabled = true
-            isIndoorEnabled = true
-            isBuildingsEnabled = true
-            uiSettings.isZoomControlsEnabled = true
-            uiSettings.isCompassEnabled = true
-            uiSettings.isIndoorLevelPickerEnabled = true
-            uiSettings.isZoomGesturesEnabled = true
-            uiSettings.isTiltGesturesEnabled = true
-            uiSettings.setAllGesturesEnabled(true)
-            mMap?.mapType = GoogleMap.MAP_TYPE_NORMAL
-        }
-    }
-
-    private fun setMapStyle() {
-        mMap?.let {
-            try {
-                val success = it.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                        requireActivity(),
-                        R.raw.map_style
-                    )
-                )
-
-                if (!success) {
-
-                }
-            } catch (e: Resources.NotFoundException) {
-
+        locationManager.selectedLocation.observe(viewLifecycleOwner) {
+            if (it.formattedAddress != "") {
+                binding.tvLocation.text = it.formattedAddress
+                binding.itemLocation.tvFromLocation.text = it.formattedAddress
+            } else {
+                binding.tvLocation.text = it.address
+                binding.itemLocation.tvFromLocation.text = it.address
             }
         }
     }
 
+    override fun onMapReady(googleMap: GoogleMap) {
+        initMap(googleMap)
+    }
 
-    private fun setMarker(point: Point) {
+
+    private fun setCamera(point: Point) {
         mMap?.let {
             val p = LatLng(point.lat, point.lng)
-            it.addMarker(
+            /*it.addMarker(
                 MarkerOptions().position(p)
                     .icon(
-                        BitmapDescriptorFactory.fromResource(R.drawable.pin)
-                    )
-                    .draggable(true)
-            )
+                        BitmapDescriptorFactory.fromBitmap(drawBitmap())
+                    ).draggable(true)
+            )*/
             it.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(p, 15f),
-                2000,
+                200,
                 object : GoogleMap.CancelableCallback {
                     override fun onCancel() {
 
@@ -100,8 +90,34 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback {
 
                     override fun onFinish() {
                     }
-
                 })
+        }
+    }
+
+    private fun initMap(googleMap: GoogleMap?) {
+        googleMap?.run {
+            mMap = this
+            isTrafficEnabled = true
+            isMyLocationEnabled = true
+            isIndoorEnabled = true
+            isBuildingsEnabled = true
+            uiSettings.isCompassEnabled = false
+            uiSettings.isMyLocationButtonEnabled = false
+            setOnCameraIdleListener(this@MapFragment)
+        }
+    }
+
+    private fun drawBitmap(): Bitmap {
+        return BitmapFactory.decodeResource(
+            resources,
+            R.drawable.ic_pin
+        )
+    }
+
+    override fun onCameraIdle() {
+        mMap?.let {
+            val point = Point(it.cameraPosition.target.latitude, it.cameraPosition.target.longitude)
+            locationManager.getAddress(point)
         }
     }
 }

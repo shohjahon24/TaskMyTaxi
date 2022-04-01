@@ -30,14 +30,17 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback {
         mMap = googleMap
         mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(41.311081, 69.240562)
-        mMap.addMarker(
-            MarkerOptions().position(sydney).title("Marker in Tashkent")
-                .icon(
-                BitmapDescriptorFactory.fromResource(R.drawable.pin)
-            )
-                .draggable(true)
-        )
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15f))
+        val p = LatLng(41.311081, 69.240562)
+        mMap.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(p, 15f),
+            200,
+            object : GoogleMap.CancelableCallback {
+                override fun onCancel() {
+
+                }
+
+                override fun onFinish() {
+                }
+            })
     }
 }

@@ -36,6 +36,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -65,10 +69,10 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt"
     kapt "com.google.dagger:hilt-android-compiler:$hilt"
 
-  /*  def hilt_lifecycle_viewmodel = "1.0.0-alpha03"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:x.x.x"
-    kapt "androidx.hilt:hilt-compiler:x.x.x"
-*/
+    /*  def hilt_lifecycle_viewmodel = "1.0.0-alpha03"
+      implementation "androidx.hilt:hilt-lifecycle-viewmodel:x.x.x"
+      kapt "androidx.hilt:hilt-compiler:x.x.x"
+  */
     // nav component
     def nav_version = "2.4.1"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"

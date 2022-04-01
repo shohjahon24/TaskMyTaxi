@@ -14,7 +14,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:background="@drawable/bg_input_top_corner"
+            android:background="@drawable/bg_top_corner"
             android:orientation="horizontal">
 
             <ImageView
@@ -25,15 +25,17 @@
                 android:src="@drawable/ic_red_pin" />
 
             <TextView
-                android:id="@+id/tv_to_location"
+                android:id="@+id/tv_from_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
                 android:lines="1"
+                android:layout_marginEnd="4dp"
+                android:hint="Select an address"
+                android:textColorHint="@color/text_color_light"
                 android:textColor="@color/text_color_light"
-                android:textSize="16sp"
-                android:text="Amir Temur" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <View
@@ -42,11 +44,11 @@
             android:background="@color/text_color_light" />
 
         <LinearLayout
-            android:id="@+id/ll_from_location"
+            android:id="@+id/ll_to_location"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:clickable="true"
-            android:background="@drawable/bg_input_bottom_corner"
+            android:background="@drawable/bg_bottom_corner"
             android:foreground="?selectableItemBackgroundBorderless"
             android:orientation="horizontal"
             android:focusable="true">
@@ -60,7 +62,7 @@
                 android:src="@drawable/ic_point" />
 
             <TextView
-                android:id="@+id/tv_from_location"
+                android:id="@+id/tv_to_location"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
