@@ -1,5 +1,7 @@
 package com.example.taskmytaxi.repository.location
 
+import android.util.Log
+import android.widget.Toast
 import com.example.taskmytaxi.datasource.network.ClientResponse
 import com.example.taskmytaxi.datasource.network.LocationService
 import com.example.taskmytaxi.datasource.network.model.LocationDtoMapper
@@ -17,9 +19,9 @@ class LocationRepositoryImp(
     private val locationDtoMapper: LocationDtoMapper,
     private val routeDtoMapper: RouteDtoMapper
 ) : LocationRepository {
-    override suspend fun search(point: Point, query: String): ClientResponse<List<Location>> {
+    override suspend fun search(query: String): ClientResponse<List<Location>> {
         try {
-            val repo = locationService.search(20, point.lat, point.lng, query, null)
+            val repo = locationService.search(20, 0.0, 0.0, query, 0)
             if (repo.isSuccessful && repo.body() != null) {
                 repo.body()?.let {
                     if (it.status == "success")
@@ -38,6 +40,7 @@ class LocationRepositoryImp(
             val to = "${pointTo.lat},${pointTo.lng}"
             val from = "${pointFrom.lat},${pointFrom.lng}"
             val repo = locationService.getRoute(from, to)
+            Log.d("TAG", "getRoute: ${repo.body()}")
             if (repo.isSuccessful && repo.body() != null) {
                 repo.body()?.let {
                     return ClientResponse.Success(routeDtoMapper.mapToDomainModel(it.data.route))

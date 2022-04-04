@@ -10,7 +10,8 @@ class FavoriteEntityMapper : DomainMapper<FavoriteEntity, Favorite> {
             address = model.address,
             formattedAddress = model.formattedAddress,
             description = model.description,
-            point = Point(model.lat, model.lng)
+            point = Point(model.lat, model.lng),
+            type = model.type
         )
     }
 
@@ -20,7 +21,8 @@ class FavoriteEntityMapper : DomainMapper<FavoriteEntity, Favorite> {
             formattedAddress = domainModel.formattedAddress,
             description = domainModel.description,
             lat = domainModel.point.lat,
-            lng = domainModel.point.lng
+            lng = domainModel.point.lng,
+            type = domainModel.type
         )
     }
 

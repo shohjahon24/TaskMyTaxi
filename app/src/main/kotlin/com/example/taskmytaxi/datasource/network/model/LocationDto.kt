@@ -9,6 +9,7 @@ data class LocationDto(
     @SerializedName("formatted_address")
     val formattedAddress: String,
     val lang: String,
+    @SerializedName("location")
     val point: PointDto,
     @SerializedName("street_poi_id")
     val streetId: Int

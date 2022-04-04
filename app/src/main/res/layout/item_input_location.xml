@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/content"
     android:orientation="vertical">
 
     <LinearLayout
@@ -12,9 +13,11 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/ll_from_location"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@drawable/bg_top_corner"
+            android:foreground="?selectableItemBackground"
             android:orientation="horizontal">
 
             <ImageView
@@ -29,12 +32,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
-                android:lines="1"
                 android:layout_marginEnd="4dp"
+                android:gravity="center_vertical"
                 android:hint="Select an address"
-                android:textColorHint="@color/text_color_light"
+                android:lines="1"
                 android:textColor="@color/text_color_light"
+                android:textColorHint="@color/text_color_light"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -47,11 +50,11 @@
             android:id="@+id/ll_to_location"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:clickable="true"
             android:background="@drawable/bg_bottom_corner"
-            android:foreground="?selectableItemBackgroundBorderless"
-            android:orientation="horizontal"
-            android:focusable="true">
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?selectableItemBackground"
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="56dp"
@@ -59,7 +62,7 @@
                 android:layout_gravity="center"
                 android:padding="12dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_point" />
+                android:src="@drawable/ic_point_blue" />
 
             <TextView
                 android:id="@+id/tv_to_location"

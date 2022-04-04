@@ -9,9 +9,33 @@
         android:name="com.example.taskmytaxi.presentation.ui.main.MainFragment"
         android:label="MainFragment"
         tools:layout="@layout/fragment_main"/>
+
     <fragment
         android:id="@+id/mapFragment"
         android:name="com.example.taskmytaxi.presentation.ui.map.MapFragment"
         android:label="MapFragment"
-        tools:layout="@layout/fragment_map"/>
+        tools:layout="@layout/fragment_map">
+
+        <action
+            android:id="@+id/action_mapFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+
+        <action
+            android:id="@+id/action_mapFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+
+    </fragment>
+    <dialog
+        android:id="@+id/searchFragment"
+        android:name="com.example.taskmytaxi.presentation.ui.search.SearchFragment"
+        android:label="FragmentSearch"
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_searchFragment_to_mapFragment"
+            app:destination="@id/mapFragment"
+            app:popUpTo="@id/searchFragment"/>
+        <action
+            android:id="@+id/action_searchFragment_to_mainFragment"
+            app:destination="@id/mainFragment" />
+    </dialog>
 </navigation>

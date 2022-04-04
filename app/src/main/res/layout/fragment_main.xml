@@ -11,9 +11,8 @@
         android:layout_marginBottom="-32dp"
         android:layout_weight="1">
 
-        <fragment
+        <com.google.android.gms.maps.MapView
             android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
@@ -48,8 +47,10 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/ll_from"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
+                    android:foreground="?selectableItemBackgroundBorderless"
                     android:background="@drawable/bg_top_corner"
                     android:orientation="horizontal">
 
@@ -68,6 +69,8 @@
                         android:layout_marginEnd="4dp"
                         android:gravity="center_vertical"
                         android:lines="1"
+                        android:textColorHint="@color/text_color_light"
+                        android:hint="Where from?"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -78,7 +81,7 @@
                     android:background="@color/text_color_light" />
 
                 <LinearLayout
-                    android:id="@+id/ll_to_location"
+                    android:id="@+id/ll_to"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:background="@drawable/bg_bottom_corner_light"
@@ -90,16 +93,18 @@
                         android:layout_gravity="center"
                         android:padding="12dp"
                         android:scaleType="fitXY"
-                        android:src="@drawable/ic_point" />
+                        android:src="@drawable/ic_point_blue" />
 
                     <TextView
                         android:id="@+id/tv_to_location"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:layout_height="match_parent"
                         android:layout_gravity="center_vertical"
                         android:layout_weight="1"
                         android:gravity="center_vertical"
                         android:lines="1"
+                        android:text="Where to?"
                         android:layout_marginEnd="4dp"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
@@ -111,10 +116,12 @@
                         android:background="@color/text_color_light" />
 
                     <ImageView
+                        android:id="@+id/btn_add"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:scaleType="fitXY"
+                        android:background="?selectableItemBackgroundBorderless"
                         android:padding="12dp"
                         android:src="@drawable/ic_add" />
                 </LinearLayout>

@@ -42,7 +42,7 @@ object NetworkModule {
     @Provides
     fun provideRecipeService(client: OkHttpClient): LocationService {
         return Retrofit.Builder()
-            .baseUrl("https://testrouting.mytaxi.uz/v2/")
+            .baseUrl("https://testrouting.mytaxi.uz/")
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
             .client(client)
             .build()

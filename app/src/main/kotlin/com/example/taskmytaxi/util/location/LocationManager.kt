@@ -104,10 +104,10 @@ class LocationManager @Inject constructor(@ApplicationContext private val contex
                 val list = name.split(",")
                 list.forEachIndexed { index, s ->
                     when {
-                        index < list.size - 5 -> formattedAddress += "$s,"
-                        index < list.size - 4 -> formattedAddress += s
-                        index == list.size - 1 -> address += s
-                        else -> address += "$s,"
+                        index < list.size - 5 -> address += "$s,"
+                        index < list.size - 4 -> address += s
+                        index == list.size - 1 -> formattedAddress += s
+                        else -> formattedAddress += "$s,"
                     }
                 }
                 location = Location(address, 0, formattedAddress, "", point, 0)

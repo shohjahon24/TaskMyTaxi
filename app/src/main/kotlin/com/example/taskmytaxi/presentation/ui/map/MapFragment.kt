@@ -6,10 +6,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.example.taskmytaxi.R
+import com.example.taskmytaxi.databinding.FragmentMainBinding
 import com.example.taskmytaxi.databinding.FragmentMapBinding
+import com.example.taskmytaxi.domain.model.Location
 import com.example.taskmytaxi.domain.model.Point
+import com.example.taskmytaxi.presentation.session_manager.SessionManager
 import com.example.taskmytaxi.util.location.LocationManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -21,33 +27,46 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
-    GoogleMap.OnCameraIdleListener {
+    GoogleMap.OnCameraIdleListener, View.OnClickListener {
 
     private var mMap: GoogleMap? = null
 
     private lateinit var binding: FragmentMapBinding
 
+    private val navController: NavController by lazy { findNavController() }
+
+    private var location: Location? = null
+
     @Inject
     lateinit var locationManager: LocationManager
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentMapBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
-        val mapFragment: SupportMapFragment =
-            childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        binding = FragmentMapBinding.bind(view)
+        binding.map.onCreate(savedInstanceState)
+        binding.map.getMapAsync(this)
         locationManager.getCurrentLocation()
         setupObserves()
-        binding.btnMyLocation.setOnClickListener {
-            locationManager.getCurrentLocation()
+        setupView()
+        binding.btnMyLocation.setOnClickListener(this)
+        binding.itemLocation.llFromLocation.setOnClickListener(this)
+        binding.itemLocation.llToLocation.setOnClickListener(this)
+        binding.btnBack.setOnClickListener(this)
+        binding.btnConfirm.setOnClickListener(this)
+    }
+
+    private fun setupView() {
+        if (arguments == null) {
+            binding.itemLocation.content.visibility = View.VISIBLE
+            binding.llFirst.visibility = View.GONE
+            SessionManager.locationManager.apply {
+                repeat(getToLocations().size) {
+                    removeLocation(getToLocations().first())
+                }
+            }
+        } else {
+            binding.itemLocation.content.visibility = View.GONE
+            binding.llFirst.visibility = View.VISIBLE
+            binding.btnBack.visibility = View.VISIBLE
         }
     }
 
@@ -56,12 +75,13 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
             setCamera(it)
         }
         locationManager.selectedLocation.observe(viewLifecycleOwner) {
-            if (it.formattedAddress != "") {
-                binding.tvLocation.text = it.formattedAddress
-                binding.itemLocation.tvFromLocation.text = it.formattedAddress
-            } else {
+            location = it
+            if (it.address != "") {
                 binding.tvLocation.text = it.address
                 binding.itemLocation.tvFromLocation.text = it.address
+            } else {
+                binding.tvLocation.text = it.formattedAddress
+                binding.itemLocation.tvFromLocation.text = it.formattedAddress
             }
         }
     }
@@ -120,4 +140,57 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
             locationManager.getAddress(point)
         }
     }
+
+    override fun onClick(p0: View) {
+        when (p0.id) {
+            R.id.ll_from_location -> {
+                location?.let { SessionManager.locationManager.changeFrom(it) }
+                navController.navigate(
+                    R.id.action_mapFragment_to_searchFragment,
+                    bundleOf(Pair("id", 0))
+                )
+            }
+            R.id.ll_to_location -> {
+                location?.let { SessionManager.locationManager.changeFrom(it) }
+                navController.navigate(
+                    R.id.action_mapFragment_to_searchFragment,
+                    bundleOf(Pair("id", 1))
+                )
+            }
+            R.id.btn_my_location -> {
+                locationManager.getCurrentLocation()
+            }
+            R.id.btn_back -> {
+                navController.popBackStack()
+            }
+            R.id.btn_confirm -> {
+                arguments?.let { it ->
+                    when (it.getInt("id")) {
+                        0 -> location?.let { SessionManager.locationManager.changeFrom(it) }
+                        1 -> location?.let { SessionManager.locationManager.changeToLocation(it) }
+                        else -> location?.let { SessionManager.locationManager.addToLocation(it) }
+                    }
+                }
+                arguments = null
+                navController.navigateUp()
+                navController.navigate(R.id.action_mapFragment_to_mainFragment)
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.map.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.map.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.map.onResume()
+    }
+
 }

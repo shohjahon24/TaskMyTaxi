@@ -15,7 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TaskMyTaxi">
 
-        <!--Use your api key-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAoCvcEwaEHYB-PQIb8N7ufk49kclhnBbM" />
@@ -23,6 +22,7 @@
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".presentation.FirstActivity"
