@@ -1,6 +1,7 @@
 package com.example.taskmytaxi.presentation.ui.search
 
 import android.app.Dialog
+import android.graphics.Paint
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -16,10 +18,12 @@ import com.example.taskmytaxi.R
 import com.example.taskmytaxi.databinding.DialogFavoriteBinding
 import com.example.taskmytaxi.databinding.FragmentSearchBinding
 import com.example.taskmytaxi.domain.model.Location
-import com.example.taskmytaxi.presentation.list.OnLocationClick
+import com.example.taskmytaxi.presentation.list.LocationListener
+import com.example.taskmytaxi.presentation.list.favorite.FavoriteAdapter
 import com.example.taskmytaxi.presentation.list.location.LocationAdapter
 import com.example.taskmytaxi.presentation.session_manager.SessionManager
 import com.example.taskmytaxi.util.MyTextWatcher
+import com.example.taskmytaxi.util.location.LocationManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -28,14 +32,21 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickListener,
-    View.OnFocusChangeListener, OnLocationClick {
+    View.OnFocusChangeListener, LocationListener {
 
     private lateinit var binding: FragmentSearchBinding
 
     private var favoriteDialog: BottomSheetDialog? = null
 
     @Inject
+    lateinit var favoriteAdapter: FavoriteAdapter
+
+    @Inject
     lateinit var adapter: LocationAdapter
+
+    @Inject
+    lateinit var locationManager: LocationManager
+
 
     private lateinit var dialog: BottomSheetDialog
 
@@ -48,7 +59,7 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         arguments?.let {
             type = it.getInt("id")
-            setupLocationsToView(type)
+            setupLocationsToView(type, it.getBoolean("isEdit"))
             setupFocus(type)
         }
         binding.listLocation.adapter = adapter
@@ -58,9 +69,11 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
         binding.btnMapTo.setOnClickListener(this)
         binding.btnClearTo.setOnClickListener(this)
         binding.btnClearFrom.setOnClickListener(this)
+        binding.btnFavorite.setOnClickListener(this)
         binding.etFromLocation.onFocusChangeListener = this
         binding.etToLocation.onFocusChangeListener = this
         adapter.listener = this
+        favoriteAdapter.listener = this
         setupObserves()
     }
 
@@ -81,6 +94,9 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
                         hideShimmerView()
                     }
                 }
+            }
+            favorites.observe(viewLifecycleOwner) {
+                favoriteAdapter.setData(it)
             }
         }
     }
@@ -130,26 +146,36 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
         }
     }
 
-    private fun setupLocationsToView(id: Int) {
+    private fun setupLocationsToView(id: Int, isEdit: Boolean) {
         SessionManager.locationManager.getFromLocation()?.let {
             binding.etFromLocation.setText(it.address)
         }
         SessionManager.locationManager.getToLocations().let {
-            if (it.isNotEmpty())
-                binding.etToLocation.setText(it.last().address)
+            if (it.isNotEmpty() && it.size >= id)
+                binding.etToLocation.setText(if (id == 0) it[id].address else it[id - 1].address)
         }
-        if (id == 2) {
-            binding.llFromLocation.visibility = View.GONE
+        if (isEdit) {
+            binding.llFrom.visibility = View.GONE
         }
     }
 
     private fun showFavoriteDialog() {
         if (favoriteDialog == null) {
-            val binding = DialogFavoriteBinding.inflate(layoutInflater)
-
+            context?.let {
+                val binding = DialogFavoriteBinding.inflate(layoutInflater)
+                binding.apply {
+                    listFavorite.adapter = favoriteAdapter
+                }
+                favoriteDialog = BottomSheetDialog(it, R.style.BottomSheetDialogTheme)
+                favoriteDialog?.run {
+                    setContentView(binding.root)
+                    behavior.state = BottomSheetBehavior.STATE_EXPANDED
+                }
+                viewModel.getFavorites()
+            }
         }
+        favoriteDialog?.show()
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -195,10 +221,12 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
     override fun onClick(p0: View) {
         when (p0.id) {
             R.id.btn_map_from -> {
-                navController.navigate(R.id.action_searchFragment_to_mapFragment, arguments)
+                navController.navigate(R.id.action_searchFragment_to_mapFragment, bundleOf(Pair("id", 0)))
             }
             R.id.btn_map_to -> {
-                navController.navigate(R.id.action_searchFragment_to_mapFragment, arguments)
+                var id = arguments?.getInt("id")
+                if (id == 0) id = 1
+                navController.navigate(R.id.action_searchFragment_to_mapFragment, bundleOf(Pair("id", id)))
             }
             R.id.btn_clear_from -> {
                 binding.etFromLocation.setText("")
@@ -206,6 +234,7 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
             R.id.btn_clear_to -> {
                 binding.etToLocation.setText("")
             }
+            R.id.btn_favorite -> showFavoriteDialog()
         }
     }
 
@@ -241,6 +270,10 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
             1 -> SessionManager.locationManager.changeToLocation(location)
             else -> SessionManager.locationManager.addToLocation(location)
         }
-        navController.navigate(R.id.action_searchFragment_to_mainFragment)
+        favoriteDialog?.dismiss()
+        if (navController.previousBackStackEntry?.destination?.id == R.id.mainFragment)
+            navController.popBackStack(R.id.mainFragment, true)
+        navController.navigate(R.id.mainFragment)
+
     }
 }

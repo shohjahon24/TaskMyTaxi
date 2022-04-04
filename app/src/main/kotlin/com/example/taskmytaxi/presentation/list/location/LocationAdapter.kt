@@ -5,22 +5,23 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taskmytaxi.databinding.ItemLocationBinding
 import com.example.taskmytaxi.domain.model.Location
-import com.example.taskmytaxi.presentation.list.OnLocationClick
+import com.example.taskmytaxi.domain.model.Locations
+import com.example.taskmytaxi.presentation.list.LocationListener
 import javax.inject.Inject
 
 class LocationAdapter @Inject constructor() : RecyclerView.Adapter<LocationViewHolder>() {
 
-    private var data: List<Location> = ArrayList()
+    private var data: List<Locations> = ArrayList()
 
-    var listener: OnLocationClick? = null
+    var listener: LocationListener? = null
 
-    fun setData(data: List<Location>) {
+    fun setData(data: List<Locations>) {
         this.data = data
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationViewHolder {
-        val binding = ItemLocationBinding.inflate(LayoutInflater.from(parent.context))
+        val binding = ItemLocationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return LocationViewHolder(binding)
     }
 

@@ -7,10 +7,9 @@ import androidx.room.PrimaryKey
 data class FavoriteEntity(
     val address: String,
     val formattedAddress: String,
-    val description: String,
     val lat: Double,
     val lng: Double,
     val type: Int,
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0
-    )
+)

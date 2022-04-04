@@ -6,5 +6,10 @@ data class Location(
     val formattedAddress: String,
     val lang: String,
     val point: Point,
-    val streetId: Int
+    val streetId: Int,
+    var type: Int = 0
+)
+
+data class Locations(
+    val data: List<Location>
 )

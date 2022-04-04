@@ -24,6 +24,8 @@
             android:layout_marginTop="16dp"
             android:background="@drawable/bg_button_round"
             android:padding="10dp"
+            android:elevation="2dp"
+            android:foreground="?android:selectableItemBackground"
             android:src="@drawable/ic_back" />
 
     </FrameLayout>
@@ -33,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="16dp"
-        app:cardElevation="2dp">
+        app:cardElevation="20dp">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -50,25 +52,21 @@
                     android:id="@+id/ll_from"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:foreground="?selectableItemBackgroundBorderless"
+                    android:foreground="?android:selectableItemBackground"
                     android:background="@drawable/bg_top_corner"
                     android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_red_pin" />
 
                     <TextView
                         android:id="@+id/tv_from_location"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_gravity="center_vertical"
                         android:layout_marginEnd="4dp"
                         android:gravity="center_vertical"
                         android:lines="1"
+                        android:drawablePadding="8dp"
+                        android:paddingHorizontal="16dp"
+                        android:drawableStart="@drawable/ic_red_pin"
                         android:textColorHint="@color/text_color_light"
                         android:hint="Where from?"
                         android:textColor="@color/black"
@@ -87,29 +85,25 @@
                     android:background="@drawable/bg_bottom_corner_light"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:padding="12dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/ic_point_blue" />
-
                     <TextView
                         android:id="@+id/tv_to_location"
                         android:layout_width="0dp"
-                        android:background="?selectableItemBackgroundBorderless"
+                        android:background="?selectableItemBackground"
                         android:layout_height="match_parent"
                         android:layout_gravity="center_vertical"
                         android:layout_weight="1"
+                        android:drawablePadding="8dp"
                         android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
                         android:lines="1"
                         android:text="Where to?"
                         android:layout_marginEnd="4dp"
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        app:drawableStartCompat="@drawable/ic_point_blue" />
 
                     <View
+                        android:id="@+id/span"
                         android:layout_width="0.5dp"
                         android:layout_height="28dp"
                         android:layout_gravity="center_vertical"
@@ -127,7 +121,7 @@
                 </LinearLayout>
 
                 <Button
-                    android:id="@+id/btn_confirm"
+                    android:id="@+id/btn_order"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
                     android:layout_marginTop="8dp"

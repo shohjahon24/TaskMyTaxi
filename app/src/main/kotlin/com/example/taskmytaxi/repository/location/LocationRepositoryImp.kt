@@ -1,31 +1,43 @@
 package com.example.taskmytaxi.repository.location
 
 import android.util.Log
-import android.widget.Toast
 import com.example.taskmytaxi.datasource.network.ClientResponse
 import com.example.taskmytaxi.datasource.network.LocationService
 import com.example.taskmytaxi.datasource.network.model.LocationDtoMapper
 import com.example.taskmytaxi.datasource.network.model.RouteDtoMapper
-import com.example.taskmytaxi.datasource.network.request.RouteRequest
-import com.example.taskmytaxi.datasource.network.request.SearchRequest
-import com.example.taskmytaxi.domain.model.Location
+import com.example.taskmytaxi.domain.model.Locations
 import com.example.taskmytaxi.domain.model.Point
 import com.example.taskmytaxi.domain.model.Route
-import java.lang.Exception
-import java.lang.NullPointerException
 
 class LocationRepositoryImp(
     private val locationService: LocationService,
     private val locationDtoMapper: LocationDtoMapper,
     private val routeDtoMapper: RouteDtoMapper
 ) : LocationRepository {
-    override suspend fun search(query: String): ClientResponse<List<Location>> {
+    override suspend fun search(query: String): ClientResponse<List<Locations>> {
         try {
             val repo = locationService.search(20, 0.0, 0.0, query, 0)
             if (repo.isSuccessful && repo.body() != null) {
-                repo.body()?.let {
-                    if (it.status == "success")
-                        return ClientResponse.Success(locationDtoMapper.toDomainList(it.data.locations))
+                repo.body()?.let { it ->
+                    if (it.status == "success") {
+                        val locations: ArrayList<Locations> = ArrayList()
+                        val data = it.data.locations
+                        data.forEach { d ->
+                            if (d.addressId == null) {
+                                val r = locationService.search(5, 0.0, 0.0, "", d.streetId)
+                                if (r.isSuccessful && r.body() != null) {
+                                    r.body()?.let {
+                                        val l = arrayListOf(d)
+                                        l.addAll(it.data.locations)
+                                        locations.add(locationDtoMapper.toDomainList(l))
+                                    }
+                                }
+                            }
+                            else
+                                locations.add(locationDtoMapper.toDomainList(listOf(d)))
+                        }
+                        return ClientResponse.Success(locations)
+                    }
                 }
             }
             return ClientResponse.Error(NullPointerException().hashCode())

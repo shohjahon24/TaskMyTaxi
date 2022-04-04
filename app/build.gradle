@@ -96,6 +96,10 @@ dependencies {
 
     //Shimmer
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    // Expandable
+    implementation "com.github.skydoves:expandablelayout:1.0.7"
+
 }
 
 kapt {

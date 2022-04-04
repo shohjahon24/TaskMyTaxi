@@ -20,11 +20,23 @@ class MainViewModel @Inject constructor(private val repo: LocationRepository) : 
 
     val points: MutableLiveData<List<LatLng>> = MutableLiveData()
 
-    fun getRoute(from: Point, to: Point) {
+    fun drawLine(from: Location, to: List<Location?>) {
+        viewModelScope.launch(IO) {
+            val data: ArrayList<Location?> = ArrayList()
+            data.add(from)
+            data.addAll(to)
+            for(i in 0..data.size-2)
+                data[i]?.point?.let { data[i+1]?.point?.let { it1 -> getRoute(it, it1) } }
+        }
+    }
+
+    private suspend fun getRoute(from: Point, to: Point) {
         viewModelScope.launch(IO) {
             when (val result = repo.getRoute(pointFrom = from, pointTo = to)) {
                 is ClientResponse.Success -> {
-                    val routes = result.result.points.map { LatLng(it.lat, it.lng) }
+                    val routes = arrayListOf(LatLng(from.lat, from.lng))
+                    routes.addAll(result.result.points.map { LatLng(it.lat, it.lng) })
+                    routes.add(LatLng(to.lat, to.lng))
                     points.postValue(routes)
                 }
                 is ClientResponse.Error -> {

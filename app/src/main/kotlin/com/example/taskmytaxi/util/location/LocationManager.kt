@@ -29,6 +29,10 @@ class LocationManager @Inject constructor(@ApplicationContext private val contex
 
     var selectedLocation: MutableLiveData<Location> = MutableLiveData()
 
+    init {
+        lastDeviceLocation.value = Point(41.63, 69.24)
+    }
+
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(
             context

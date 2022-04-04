@@ -1,9 +1,11 @@
 package com.example.taskmytaxi.datasource.network.model
 
 import com.example.taskmytaxi.domain.model.Location
+import com.example.taskmytaxi.domain.model.Locations
 import com.example.taskmytaxi.domain.util.DomainMapper
 
-class LocationDtoMapper(private val pointDtoMapper: PointDtoMapper) : DomainMapper<LocationDto, Location> {
+class LocationDtoMapper(private val pointDtoMapper: PointDtoMapper) :
+    DomainMapper<LocationDto, Location> {
 
     override fun mapToDomainModel(model: LocationDto): Location {
         return Location(
@@ -27,8 +29,8 @@ class LocationDtoMapper(private val pointDtoMapper: PointDtoMapper) : DomainMapp
         )
     }
 
-    fun toDomainList(initial: List<LocationDto>): List<Location> {
-        return initial.map { mapToDomainModel(it) }
+    fun toDomainList(initial: List<LocationDto>): Locations {
+        return Locations(data = initial.map { mapToDomainModel(it) })
     }
 
     fun fromDomainList(initial: List<Location>): List<LocationDto> {

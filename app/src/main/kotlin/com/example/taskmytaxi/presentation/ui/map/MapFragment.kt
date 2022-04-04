@@ -1,17 +1,13 @@
 package com.example.taskmytaxi.presentation.ui.map
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.taskmytaxi.R
-import com.example.taskmytaxi.databinding.FragmentMainBinding
 import com.example.taskmytaxi.databinding.FragmentMapBinding
 import com.example.taskmytaxi.domain.model.Location
 import com.example.taskmytaxi.domain.model.Point
@@ -20,9 +16,9 @@ import com.example.taskmytaxi.util.location.LocationManager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -44,7 +40,6 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
         binding = FragmentMapBinding.bind(view)
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
-        locationManager.getCurrentLocation()
         setupObserves()
         setupView()
         binding.btnMyLocation.setOnClickListener(this)
@@ -88,18 +83,20 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
 
     override fun onMapReady(googleMap: GoogleMap) {
         initMap(googleMap)
+        SessionManager.locationManager.getFromLocation().let {
+            if (it == null)
+                locationManager.getCurrentLocation()
+            else
+            {
+                setCamera(it.point)
+            }
+        }
     }
 
 
     private fun setCamera(point: Point) {
         mMap?.let {
             val p = LatLng(point.lat, point.lng)
-            /*it.addMarker(
-                MarkerOptions().position(p)
-                    .icon(
-                        BitmapDescriptorFactory.fromBitmap(drawBitmap())
-                    ).draggable(true)
-            )*/
             it.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(p, 15f),
                 200,
@@ -127,13 +124,6 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
         }
     }
 
-    private fun drawBitmap(): Bitmap {
-        return BitmapFactory.decodeResource(
-            resources,
-            R.drawable.ic_pin
-        )
-    }
-
     override fun onCameraIdle() {
         mMap?.let {
             val point = Point(it.cameraPosition.target.latitude, it.cameraPosition.target.longitude)
@@ -147,14 +137,14 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
                 location?.let { SessionManager.locationManager.changeFrom(it) }
                 navController.navigate(
                     R.id.action_mapFragment_to_searchFragment,
-                    bundleOf(Pair("id", 0))
+                    bundleOf(Pair("id", 0), Pair("isEdit", false))
                 )
             }
             R.id.ll_to_location -> {
                 location?.let { SessionManager.locationManager.changeFrom(it) }
                 navController.navigate(
                     R.id.action_mapFragment_to_searchFragment,
-                    bundleOf(Pair("id", 1))
+                    bundleOf(Pair("id", 1), Pair("isEdit", false))
                 )
             }
             R.id.btn_my_location -> {
@@ -164,16 +154,18 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
                 navController.popBackStack()
             }
             R.id.btn_confirm -> {
-                arguments?.let { it ->
-                    when (it.getInt("id")) {
-                        0 -> location?.let { SessionManager.locationManager.changeFrom(it) }
-                        1 -> location?.let { SessionManager.locationManager.changeToLocation(it) }
-                        else -> location?.let { SessionManager.locationManager.addToLocation(it) }
+                if (navController.currentDestination?.id == R.id.mapFragment) {
+                    arguments?.let { it ->
+                        when (it.getInt("id")) {
+                            0 -> location?.let { SessionManager.locationManager.changeFrom(it) }
+                            1 -> location?.let { SessionManager.locationManager.changeToLocation(it) }
+                            else -> location?.let { SessionManager.locationManager.addToLocation(it) }
+                        }
                     }
+                    arguments = null
+                    navController.navigateUp()
+                    navController.navigate(R.id.mainFragment)
                 }
-                arguments = null
-                navController.navigateUp()
-                navController.navigate(R.id.action_mapFragment_to_mainFragment)
             }
         }
     }
