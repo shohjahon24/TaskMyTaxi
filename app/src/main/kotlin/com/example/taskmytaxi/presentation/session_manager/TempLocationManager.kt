@@ -12,17 +12,17 @@ class TempLocationManager {
             _locations.add(location)
     }
 
-    fun addToLocation(location: Location) {
+    private fun addToLocation(location: Location) {
         if (_locations.isEmpty())
             _locations.add(null)
         _locations.add(location)
     }
 
-    fun changeToLocation(location: Location) {
-        if (_locations.size < 2)
+    fun changeToLocation(location: Location, pos: Int) {
+        if (_locations.size <= pos)
             addToLocation(location)
         else
-            _locations[1] = location
+            _locations[pos] = location
     }
 
     fun getFromLocation(): Location? {

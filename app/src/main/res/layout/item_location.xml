@@ -2,7 +2,7 @@
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?selectableItemBackground"
     android:orientation="vertical">
@@ -17,10 +17,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:padding="16dp"
-            android:src="@drawable/ic_clock" />
+            android:src="@drawable/ic_clock"
+            app:tint="@color/text_color_light" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"
@@ -51,18 +53,16 @@
                 android:textSize="14sp"
                 tools:text="NHHHsahjashj" />
         </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <ImageView
+            android:id="@+id/iv_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_arrow_down" />
     </androidx.appcompat.widget.LinearLayoutCompat>
-
-    <com.skydoves.expandablelayout.ExpandableLayout
-        android:id="@+id/expandable"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:expandable_isExpanded="false">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </com.skydoves.expandablelayout.ExpandableLayout>
 
     <View
         android:layout_width="match_parent"

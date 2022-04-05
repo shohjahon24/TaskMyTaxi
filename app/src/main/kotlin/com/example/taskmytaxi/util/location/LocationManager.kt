@@ -1,8 +1,11 @@
 package com.example.taskmytaxi.util.location
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Looper
+import androidx.core.app.ActivityCompat
+import androidx.core.location.LocationManagerCompat.isLocationEnabled
 import androidx.lifecycle.MutableLiveData
 import com.example.taskmytaxi.domain.model.Location
 import com.example.taskmytaxi.domain.model.Point
@@ -21,17 +24,12 @@ import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@SuppressLint("MissingPermission")
 @Singleton
 class LocationManager @Inject constructor(@ApplicationContext private val context: Context) {
 
     var lastDeviceLocation: MutableLiveData<Point> = MutableLiveData()
 
     var selectedLocation: MutableLiveData<Location> = MutableLiveData()
-
-    init {
-        lastDeviceLocation.value = Point(41.63, 69.24)
-    }
 
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(
@@ -54,15 +52,26 @@ class LocationManager @Inject constructor(@ApplicationContext private val contex
         }
     }
 
-    fun startLocationUpdates() {
+ /*   fun startLocationUpdates() {
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
             Looper.getMainLooper()
         )
-    }
+    }*/
 
     fun getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            lastDeviceLocation.value = Point(41.63, 69.24)
+             return
+        }
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: android.location.Location? ->
                 location?.let {

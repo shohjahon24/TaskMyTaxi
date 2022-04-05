@@ -48,6 +48,7 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.clearFocus()
         binding = FragmentMainBinding.bind(view)
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
@@ -170,13 +171,18 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        fromLocation?.let {
-            if (toLocations.isNotEmpty()) {
-                viewModel.drawLine(it, toLocations)
+        if (fromLocation == null)
+            toLocations[0]?.let {
+                setCamera(LatLng(it.point.lat, it.point.lng))
             }
-            drawPoints()
-            setCamera(LatLng(it.point.lat, it.point.lng))
-        }
+        else
+            fromLocation?.let {
+                if (toLocations.isNotEmpty()) {
+                    viewModel.drawLine(it, toLocations)
+                }
+                drawPoints()
+                setCamera(LatLng(it.point.lat, it.point.lng))
+            }
     }
 
 
@@ -230,15 +236,14 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
     override fun onRemoveClick() {
         toLocations = SessionManager.locationManager.getToLocations()
         if (toLocations.isNotEmpty()) {
+            fromLocation?.let { viewModel.drawLine(it, toLocations) }
             if (toLocations.size == 1)
                 binding.tvToLocation.text = toLocations.first()?.address
             else
                 binding.tvToLocation.text = "${toLocations.size} addresses"
-        }
-        if (toLocations.isEmpty())
+        } else {
+            binding.tvToLocation.text = "Where to?"
             stopPointDialog?.dismiss()
-        else {
-            fromLocation?.let { viewModel.drawLine(it, toLocations) }
         }
         polyLines.forEach {
             it.remove()

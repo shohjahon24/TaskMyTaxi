@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.graphics.Paint
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -248,7 +249,7 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
             }, null, null, null)
             val inputType = if (p0.id == R.id.et_from_location) 0 else 1
             setupFocus(inputType)
-            if (type < 2)
+            if (type < 2 && arguments?.getBoolean("isEdit") == false)
                 type = inputType
         } else {
             p0.setCompoundDrawablesWithIntrinsicBounds(context?.let {
@@ -267,8 +268,7 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
     override fun onItemClick(location: Location) {
         when (type) {
             0 -> SessionManager.locationManager.changeFrom(location)
-            1 -> SessionManager.locationManager.changeToLocation(location)
-            else -> SessionManager.locationManager.addToLocation(location)
+            else -> SessionManager.locationManager.changeToLocation(location, type)
         }
         favoriteDialog?.dismiss()
         if (navController.previousBackStackEntry?.destination?.id == R.id.mainFragment)

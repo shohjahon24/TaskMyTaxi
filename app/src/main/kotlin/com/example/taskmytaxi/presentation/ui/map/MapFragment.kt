@@ -1,8 +1,10 @@
 package com.example.taskmytaxi.presentation.ui.map
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import androidx.core.app.ActivityCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -13,12 +15,12 @@ import com.example.taskmytaxi.domain.model.Location
 import com.example.taskmytaxi.domain.model.Point
 import com.example.taskmytaxi.presentation.session_manager.SessionManager
 import com.example.taskmytaxi.util.location.LocationManager
+import com.example.taskmytaxi.util.location.isLocationEnabled
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,6 +39,7 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
     lateinit var locationManager: LocationManager
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        view.clearFocus()
         binding = FragmentMapBinding.bind(view)
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
@@ -86,8 +89,7 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
         SessionManager.locationManager.getFromLocation().let {
             if (it == null)
                 locationManager.getCurrentLocation()
-            else
-            {
+            else {
                 setCamera(it.point)
             }
         }
@@ -115,12 +117,27 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
         googleMap?.run {
             mMap = this
             isTrafficEnabled = true
-            isMyLocationEnabled = true
             isIndoorEnabled = true
             isBuildingsEnabled = true
             uiSettings.isCompassEnabled = false
             uiSettings.isMyLocationButtonEnabled = false
             setOnCameraIdleListener(this@MapFragment)
+            context?.let {
+                if (!it.isLocationEnabled())
+                    setCamera(Point(41.63, 69.24))
+                if (
+                    ActivityCompat.checkSelfPermission(
+                        it,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                        it,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+            }
+            isMyLocationEnabled = true
         }
     }
 
@@ -156,15 +173,19 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
             R.id.btn_confirm -> {
                 if (navController.currentDestination?.id == R.id.mapFragment) {
                     arguments?.let { it ->
-                        when (it.getInt("id")) {
+                        when (val p = it.getInt("id")) {
                             0 -> location?.let { SessionManager.locationManager.changeFrom(it) }
-                            1 -> location?.let { SessionManager.locationManager.changeToLocation(it) }
-                            else -> location?.let { SessionManager.locationManager.addToLocation(it) }
+                            else -> location?.let {
+                                SessionManager.locationManager.changeToLocation(
+                                    it,
+                                    p
+                                )
+                            }
                         }
                     }
                     arguments = null
                     navController.navigateUp()
-                    navController.navigate(R.id.mainFragment)
+                    navController.navigate(R.id.mapFragment)
                 }
             }
         }
@@ -184,5 +205,4 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
         super.onResume()
         binding.map.onResume()
     }
-
 }

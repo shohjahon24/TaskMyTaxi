@@ -100,6 +100,8 @@ dependencies {
     // Expandable
     implementation "com.github.skydoves:expandablelayout:1.0.7"
 
+//  implementation 'com.github.cachapa:ExpandableLayout:2.9.2'
+
 }
 
 kapt {
