@@ -226,7 +226,7 @@ class SearchFragment : BottomSheetDialogFragment(), MyTextWatcher, View.OnClickL
             }
             R.id.btn_map_to -> {
                 var id = arguments?.getInt("id")
-                if (id == 0) id = 1
+                if (id == 0 && arguments?.getBoolean("isEdit") == false) id = 1
                 navController.navigate(R.id.action_searchFragment_to_mapFragment, bundleOf(Pair("id", id)))
             }
             R.id.btn_clear_from -> {

@@ -173,9 +173,11 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        if (fromLocation == null)
-            toLocations[0]?.let {
-                setCamera(LatLng(it.point.lat, it.point.lng))
+        if (fromLocation == null){
+            if (toLocations.isNotEmpty())
+                toLocations[0]?.let {
+                    setCamera(LatLng(it.point.lat, it.point.lng))
+                }
             }
         else
             fromLocation?.let {
@@ -207,6 +209,7 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
         when (p0.id) {
             R.id.btn_back -> {
                 navController.navigateUp()
+                navController.popBackStack(R.id.mapFragment, inclusive = true)
                 navController.navigate(R.id.mapFragment)
             }
             R.id.btn_add -> {
@@ -269,6 +272,7 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
         view.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
                 navController.navigateUp()
+                navController.popBackStack(R.id.mapFragment, inclusive = true)
                 navController.navigate(R.id.mapFragment)
                 true
             } else false

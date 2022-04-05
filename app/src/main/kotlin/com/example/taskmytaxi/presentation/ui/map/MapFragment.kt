@@ -3,6 +3,7 @@ package com.example.taskmytaxi.presentation.ui.map
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.os.bundleOf
