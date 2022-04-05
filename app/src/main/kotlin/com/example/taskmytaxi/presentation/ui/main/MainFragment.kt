@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
@@ -48,7 +49,7 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.clearFocus()
+        onKeyListener(view)
         binding = FragmentMainBinding.bind(view)
         binding.map.onCreate(savedInstanceState)
         binding.map.getMapAsync(this)
@@ -256,5 +257,18 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
             R.id.action_mainFragment_to_searchFragment,
             bundleOf(Pair("id", id), Pair("isEdit", true))
         )
+    }
+
+    private fun onKeyListener(view: View) {
+        view.clearFocus()
+        view.isFocusableInTouchMode = true
+        view.requestFocus()
+        view.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
+                navController.navigateUp()
+                navController.navigate(R.id.map)
+                true
+            } else false
+        }
     }
 }
