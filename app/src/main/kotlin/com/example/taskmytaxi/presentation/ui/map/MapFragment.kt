@@ -205,5 +205,6 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
     override fun onResume() {
         super.onResume()
         binding.map.onResume()
+
     }
 }
