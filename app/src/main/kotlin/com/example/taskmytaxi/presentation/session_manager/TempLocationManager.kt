@@ -1,5 +1,6 @@
 package com.example.taskmytaxi.presentation.session_manager
 
+import android.util.Log
 import com.example.taskmytaxi.domain.model.Location
 
 class TempLocationManager {

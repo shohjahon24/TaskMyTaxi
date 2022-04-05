@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -204,7 +205,10 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
 
     override fun onClick(p0: View) {
         when (p0.id) {
-            R.id.btn_back -> navController.popBackStack()
+            R.id.btn_back -> {
+                navController.navigateUp()
+                navController.navigate(R.id.mapFragment)
+            }
             R.id.btn_add -> {
                 if (toLocations.isEmpty())
                     navigateToSearch(1)
@@ -260,13 +264,12 @@ class MainFragment : Fragment(R.layout.fragment_main), OnMapReadyCallback, View.
     }
 
     private fun onKeyListener(view: View) {
-        view.clearFocus()
         view.isFocusableInTouchMode = true
         view.requestFocus()
         view.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
                 navController.navigateUp()
-                navController.navigate(R.id.map)
+                navController.navigate(R.id.mapFragment)
                 true
             } else false
         }

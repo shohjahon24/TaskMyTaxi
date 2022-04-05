@@ -185,7 +185,7 @@ class MapFragment : Fragment(R.layout.fragment_map), OnMapReadyCallback,
                     }
                     arguments = null
                     navController.navigateUp()
-                    navController.navigate(R.id.mapFragment)
+                    navController.navigate(R.id.mainFragment)
                 }
             }
         }
